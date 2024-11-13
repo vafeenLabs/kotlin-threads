@@ -4,7 +4,7 @@ import java.io.File
 
 fun fibonacci(n: Long): Long {
 //    println("Фибоначи $n")
-    return if (n <= 1) n
+    return if (n <= 2) n
     else fibonacci(n - 1) + fibonacci(n - 2)
 }
 
