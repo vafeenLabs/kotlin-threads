@@ -10,7 +10,6 @@ class KThreadPool(
 //    Runtime.getRuntime().availableProcessors()
 ) {
     private var workers: MutableList<Job> = mutableListOf()
-    private var isTaskBlocked = false
     private var tasks: MutableList<suspend () -> Unit> = mutableListOf()
         set(value) {
             println("Изменение списка задач")
@@ -32,19 +31,14 @@ class KThreadPool(
     }
 
     private suspend fun run() {
-        var index = 0
         while (true) {
             var task: (suspend () -> Unit)? = null
-            if (!isTaskBlocked) {
-                isTaskBlocked = true
-                if (tasks.isNotEmpty()) {
-                    task = tasks.removeFirstOrNull()
-                }
-                isTaskBlocked = false
+            // доступ к общему ресурсу только для одного "пользователя ресурсом" в одно время
+            synchronized(tasks) {
+                task = tasks.removeFirstOrNull()
             }
             task?.invoke()
             delay(1000)
-            index += 1
         }
     }
 }
